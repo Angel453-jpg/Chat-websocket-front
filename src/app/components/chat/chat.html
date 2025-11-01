@@ -1,1 +1,53 @@
-<p>chat works!</p>
+<div class="card m-4">
+
+  <div class="card-header">
+
+    <ul class="nav nav-pills card-header-pills">
+
+      @if (!connected) {
+        <li class="nav-item">
+          <button class="btn btn-success" type="button" (click)="connect()">Conectar</button>
+        </li>
+      }
+
+      @if (connected) {
+        <li class="nav-item">
+          <button class="btn btn-warning" type="button" (click)="disconnect()">Desconectar Chat</button>
+        </li>
+      }
+
+    </ul>
+
+  </div>
+
+  @if (connected) {
+    <div class="card-body" style="overflow-y: scroll; height: 360px;">
+
+      <ul class="list-group list-group-flush">
+        @for (message of messages; track $index) {
+          <li class="list-group-item list-group-item-light">
+            {{ message.date | date: 'shortTime' }}: {{ message.text }}
+          </li>
+        }
+      </ul>
+
+    </div>
+  }
+
+
+  @if (connected) {
+    <div class="card-footer">
+      <form (ngSubmit)="onSendMessage()">
+        <div class="row">
+          <div class="col">
+            <input class="form-control" name="text" [(ngModel)]="message.text">
+          </div>
+          <div class="col">
+            <button type="submit" class="btn btn-primary">Enviar</button>
+          </div>
+        </div>
+      </form>
+    </div>
+  }
+
+</div>
