@@ -54,13 +54,17 @@
       <form (ngSubmit)="onSendMessage()">
         <div class="row">
           <div class="col">
-            <input class="form-control" name="text" [(ngModel)]="message.text" placeholder="Escribe un mensaje...">
+            <input class="form-control" name="text" [(ngModel)]="message.text" placeholder="Escribe un mensaje..."
+                   (keyup)="onWritingEvent()">
           </div>
           <div class="col">
             <button type="submit" class="btn btn-primary">Enviar</button>
           </div>
         </div>
       </form>
+
+      <div>{{ writing }}</div>
+
     </div>
   }
 
