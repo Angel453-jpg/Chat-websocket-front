@@ -35,8 +35,18 @@ export class Chat implements OnInit {
         console.log(e.body)
         let message: Message = JSON.parse(e.body) as Message;
         message.date = new Date(message.date)
+        if (this.message.username == message.username && !this.message.color && message.type == 'NEW_USER') {
+          this.message.color = message.color
+        }
         this.messages.push(message);
       })
+
+      this.message.type = 'NEW_USER';
+      this.client.publish({
+        destination: '/app/message',
+        body: JSON.stringify(this.message)
+      })
+
     }
 
     this.client.onDisconnect = (frame) => {
@@ -58,6 +68,7 @@ export class Chat implements OnInit {
 
 
   onSendMessage() {
+    this.message.type = 'MESSAGE';
     this.client.publish({
       destination: '/app/message',
       body: JSON.stringify(this.message)

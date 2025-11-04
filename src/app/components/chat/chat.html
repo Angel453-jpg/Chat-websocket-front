@@ -5,8 +5,15 @@
     <ul class="nav nav-pills card-header-pills">
 
       @if (!connected) {
+        <li class="nav-item me-2">
+          <input [(ngModel)]="message.username" class="form-control" placeholder="Tu Username..." name="username">
+        </li>
+      }
+
+      @if (!connected) {
         <li class="nav-item">
-          <button class="btn btn-success" type="button" (click)="connect()">Conectar</button>
+          <button class="btn btn-success" type="button" (click)="connect()" [disabled]="!message.username">Conectar
+          </button>
         </li>
       }
 
@@ -26,7 +33,15 @@
       <ul class="list-group list-group-flush">
         @for (message of messages; track $index) {
           <li class="list-group-item list-group-item-light">
-            {{ message.date | date: 'shortTime' }}: {{ message.text }}
+
+            @if (message.type == 'NEW_USER') {
+              {{ message.date | date: 'shortTime' }}: {{ message.text }} conectado! &#64; <span
+                [ngStyle]="{'color':message.color}">{{ message.username }}</span>
+            } @else if (message.type == 'MESSAGE') {
+              {{ message.date | date: 'shortTime' }} <span
+                [ngStyle]="{'color':message.color}">{{ message.username }}</span>  dice: <br> {{ message.text }}
+            }
+
           </li>
         }
       </ul>
@@ -34,13 +49,12 @@
     </div>
   }
 
-
   @if (connected) {
     <div class="card-footer">
       <form (ngSubmit)="onSendMessage()">
         <div class="row">
           <div class="col">
-            <input class="form-control" name="text" [(ngModel)]="message.text">
+            <input class="form-control" name="text" [(ngModel)]="message.text" placeholder="Escribe un mensaje...">
           </div>
           <div class="col">
             <button type="submit" class="btn btn-primary">Enviar</button>
