@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {CommonModule} from '@angular/common';
 import * as Stomp from '@stomp/stompjs';
@@ -11,6 +11,9 @@ import {Message} from '../../models/message';
   templateUrl: './chat.html',
 })
 export class Chat implements OnInit {
+
+  @ViewChild('chatMessages') private chatMessagesContainer!: ElementRef;
+  @ViewChild('messageInput') private messageInput!: ElementRef;
 
   client!: Stomp.Client
   connected: boolean = false;
@@ -45,6 +48,8 @@ export class Chat implements OnInit {
           this.message.color = message.color
         }
         this.messages.push(message);
+
+        setTimeout(() => this.scrollToBottom(), 100);
       });
 
       this.client.subscribe('/chat/writing', event => {
@@ -56,6 +61,8 @@ export class Chat implements OnInit {
       this.client.subscribe(`/chat/history/${this.clientId}`, event => {
         const histories = JSON.parse(event.body) as Message[];
         this.messages = histories;
+
+        setTimeout(() => this.scrollToBottom(), 100);
       });
 
       this.client.publish({destination: '/app/history', body: this.clientId})
@@ -88,6 +95,12 @@ export class Chat implements OnInit {
 
 
   onSendMessage() {
+
+    //Validar que el mensaje no este vació o solo tenga espacios
+    if (!this.message.text || this.message.text.trim() === '') {
+      return; //No enviar mensaje
+    }
+
     this.message.type = 'MESSAGE';
     this.client.publish({
       destination: '/app/message',
@@ -95,6 +108,11 @@ export class Chat implements OnInit {
     });
 
     this.message.text = '';
+
+    //Mantener el foco en el input después de enviar
+    setTimeout(() => {
+      this.messageInput?.nativeElement.focus();
+    }, 0)
   }
 
   onWritingEvent(): void {
@@ -102,6 +120,18 @@ export class Chat implements OnInit {
       destination: '/app/writing',
       body: this.message.username
     })
+  }
+
+  private scrollToBottom(): void {
+    try {
+
+      if (this.chatMessagesContainer) {
+        this.chatMessagesContainer.nativeElement.scrollTop = this.chatMessagesContainer.nativeElement.scrollHeight;
+      }
+
+    } catch (e) {
+      console.error('Error al hacer scroll:', e);
+    }
   }
 
 }
