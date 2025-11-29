@@ -1,69 +1,111 @@
-<div class="card m-4">
+<div class="max-w-4xl mx-auto my-8 bg-white rounded-xl shadow-lg overflow-hidden">
 
-  <div class="card-header">
-
-    <ul class="nav nav-pills card-header-pills">
-
-      @if (!connected) {
-        <li class="nav-item me-2">
-          <input [(ngModel)]="message.username" class="form-control" placeholder="Tu Username..." name="username">
-        </li>
-      }
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-blue-400 to-blue-700 px-6 py-4">
+    <div class="flex items-center gap-3">
 
       @if (!connected) {
-        <li class="nav-item">
-          <button class="btn btn-success" type="button" (click)="connect()" [disabled]="!message.username">Conectar
-          </button>
-        </li>
+        <input
+          [(ngModel)]="message.username"
+          class="flex-1 px-4 py-2 rounded-lg border-2 border-white/30 bg-white/10 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-white/50 focus:border-transparent transition-all"
+          placeholder="Tu Username..."
+          name="username">
+
+        <button
+          class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          type="button"
+          (click)="connect()"
+          [disabled]="!message.username">
+          Conectar
+        </button>
       }
 
       @if (connected) {
-        <li class="nav-item">
-          <button class="btn btn-warning" type="button" (click)="disconnect()">Desconectar Chat</button>
-        </li>
+        <div class="flex items-center gap-2 flex-1">
+          <div class="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+          <span class="text-white font-medium">Chat conectado</span>
+        </div>
+
+        <button
+          class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
+          type="button"
+          (click)="disconnect()">
+          Desconectar Chat
+        </button>
       }
 
-    </ul>
-
+    </div>
   </div>
 
+  <!-- Chat Messages -->
   @if (connected) {
-    <div class="card-body" style="overflow-y: scroll; height: 360px;">
+    <div #chatMessages class="h-96 overflow-y-auto bg-gray-50 p-4 space-y-3">
 
-      <ul class="list-group list-group-flush">
-        @for (message of messages; track $index) {
-          <li class="list-group-item list-group-item-light">
+      @for (message of messages; track $index) {
+        <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:shadow-md transition-shadow">
 
-            @if (message.type == 'NEW_USER') {
-              {{ message.date | date: 'shortTime' }}: {{ message.text }} conectado! &#64; <span
-                [ngStyle]="{'color':message.color}">{{ message.username }}</span>
-            } @else if (message.type == 'MESSAGE') {
-              {{ message.date | date: 'shortTime' }} <span
-                [ngStyle]="{'color':message.color}">{{ message.username }}</span>  dice: <br> {{ message.text }}
-            }
+          @if (message.type == 'NEW_USER') {
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-green-500 fill-none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
+              </svg>
+              <span class="text-sm text-gray-500">{{ message.date | date: 'shortTime' }}</span>
+              <span class="text-gray-700">{{ message.text }} conectado!</span>
+              <span class="font-semibold" [ngStyle]="{'color':message.color}">{{ message.username }}</span>
+            </div>
+          } @else if (message.type == 'MESSAGE') {
+            <div>
+              <div class="flex items-center gap-2 mb-1">
+                <span class="text-sm text-gray-500">{{ message.date | date: 'shortTime' }}</span>
+                <span class="font-semibold" [ngStyle]="{'color':message.color}">{{ message.username }}</span>
+              </div>
+              <p class="text-gray-800 ml-0">{{ message.text }}</p>
+            </div>
+          }
 
-          </li>
-        }
-      </ul>
+        </div>
+      }
 
     </div>
   }
 
+  <!-- Message Input -->
   @if (connected) {
-    <div class="card-footer">
+    <div class="bg-white border-t border-gray-200 p-4">
       <form (ngSubmit)="onSendMessage()">
-        <div class="row">
-          <div class="col">
-            <input class="form-control" name="text" [(ngModel)]="message.text" placeholder="Escribe un mensaje..."
-                   (keyup)="onWritingEvent()">
-          </div>
-          <div class="col">
-            <button type="submit" class="btn btn-primary">Enviar</button>
-          </div>
+        <div class="flex gap-3">
+          <input
+            #messageInput
+            class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            name="text"
+            [(ngModel)]="message.text"
+            placeholder="Escribe un mensaje..."
+            (keyup)="onWritingEvent()">
+
+          <button
+            type="submit"
+            [disabled]="!message.text || message.text.trim() === ''"
+            class="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold !rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500">
+            <svg class="w-5 h-5 fill-none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+            </svg>
+            Enviar
+          </button>
         </div>
       </form>
 
-      <div>{{ writing }}</div>
+      @if (writing) {
+        <div class="mt-2 text-sm text-gray-500 italic flex items-center gap-2">
+          <span class="flex gap-1">
+            <span class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></span>
+            <span class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
+            <span class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+          </span>
+          {{ writing }}
+        </div>
+      }
 
     </div>
   }
