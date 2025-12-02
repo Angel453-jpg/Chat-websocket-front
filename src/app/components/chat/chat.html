@@ -1,7 +1,9 @@
-<div class="max-w-4xl mx-auto my-8 bg-white rounded-xl shadow-lg overflow-hidden">
+<div
+  class="max-w-4xl mx-auto my-8 bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden transition-colors duration-300">
 
   <!-- Header -->
-  <div class="bg-gradient-to-r from-blue-400 to-blue-700 px-6 py-4">
+  <div
+    class="bg-gradient-to-r from-cyan-400 to-blue-600 dark:from-blue-600 dark:to-indigo-900 px-6 py-4 transition-colors duration-300">
     <div class="flex items-center gap-3">
 
       @if (!connected) {
@@ -12,7 +14,7 @@
           name="username">
 
         <button
-          class="px-6 py-2 bg-green-500 hover:bg-green-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+          class="px-6 py-2 bg-green-500 hover:bg-green-600 dark:bg-green-600 dark:hover:bg-green-700 text-white font-semibold !rounded-full shadow-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
           type="button"
           (click)="connect()"
           [disabled]="!message.username">
@@ -26,8 +28,29 @@
           <span class="text-white font-medium">Chat conectado</span>
         </div>
 
+        <!-- Botón de modo oscuro -->
         <button
-          class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 text-white font-semibold rounded-lg shadow-md transition-all duration-200"
+          class="px-4 py-2 bg-white/20 hover:bg-white/30 text-white rounded-full transition-all duration-200"
+          type="button"
+          (click)="toggleDarkMode()"
+          title="Cambiar modo">
+          @if (darkMode) {
+            <!-- Icono Sol -->
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+            </svg>
+          } @else {
+            <!-- Icono Luna -->
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+          }
+        </button>
+
+        <button
+          class="px-6 py-2 bg-yellow-500 hover:bg-yellow-600 dark:bg-yellow-600 dark:hover:bg-yellow-700 text-white font-semibold !rounded-full shadow-md transition-all duration-200"
           type="button"
           (click)="disconnect()">
           Desconectar Chat
@@ -39,28 +62,41 @@
 
   <!-- Chat Messages -->
   @if (connected) {
-    <div #chatMessages class="h-96 overflow-y-auto bg-gray-50 p-4 space-y-3">
+    <div #chatMessages
+         class="h-96 overflow-y-auto bg-gray-50 dark:bg-gray-900 p-4 space-y-3 transition-colors duration-300">
 
       @for (message of messages; track $index) {
-        <div class="bg-white rounded-lg shadow-sm p-4 border border-gray-100 hover:shadow-md transition-shadow">
+        <div
+          class="bg-white dark:bg-gray-700 rounded-lg shadow-sm p-4 border border-gray-100 dark:border-gray-600 hover:shadow-md transition-all duration-300">
 
           @if (message.type == 'NEW_USER') {
             <div class="flex items-center gap-2">
-              <svg class="w-5 h-5 text-green-500 fill-none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-5 h-5 text-green-500 dark:text-green-400" fill="none" stroke="currentColor"
+                   viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                       d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"></path>
               </svg>
-              <span class="text-sm text-gray-500">{{ message.date | date: 'shortTime' }}</span>
-              <span class="text-gray-700">{{ message.text }} conectado!</span>
+              <span class="text-sm text-gray-500 dark:text-gray-400">{{ message.date | date: 'shortTime' }}</span>
+              <span class="text-gray-700 dark:text-gray-300">{{ message.text }} conectado!</span>
               <span class="font-semibold" [ngStyle]="{'color':message.color}">{{ message.username }}</span>
+            </div>
+          } @else if (message.type == 'LEAVE_USER') {
+            <div class="flex items-center gap-2">
+              <svg class="w-5 h-5 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+              </svg>
+              <span class="text-sm text-gray-500 dark:text-gray-400">{{ message.date | date: 'shortTime' }}</span>
+              <span class="font-semibold" [ngStyle]="{'color':message.color}">{{ message.username }}</span>
+              <span class="text-gray-700 dark:text-gray-300">{{ message.text }}</span>
             </div>
           } @else if (message.type == 'MESSAGE') {
             <div>
               <div class="flex items-center gap-2 mb-1">
-                <span class="text-sm text-gray-500">{{ message.date | date: 'shortTime' }}</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">{{ message.date | date: 'shortTime' }}</span>
                 <span class="font-semibold" [ngStyle]="{'color':message.color}">{{ message.username }}</span>
               </div>
-              <p class="text-gray-800 ml-0">{{ message.text }}</p>
+              <p class="text-gray-800 dark:text-gray-200 ml-0">{{ message.text }}</p>
             </div>
           }
 
@@ -72,12 +108,13 @@
 
   <!-- Message Input -->
   @if (connected) {
-    <div class="bg-white border-t border-gray-200 p-4">
+    <div
+      class="bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 p-4 transition-colors duration-300">
       <form (ngSubmit)="onSendMessage()">
         <div class="flex gap-3">
           <input
             #messageInput
-            class="flex-1 px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            class="flex-1 px-4 py-3 border-2 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500 transition-colors duration-300"
             name="text"
             [(ngModel)]="message.text"
             placeholder="Escribe un mensaje..."
@@ -86,8 +123,8 @@
           <button
             type="submit"
             [disabled]="!message.text || message.text.trim() === ''"
-            class="px-8 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold !rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500">
-            <svg class="w-5 h-5 fill-none" stroke="currentColor" viewBox="0 0 24 24">
+            class="px-8 py-3 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white font-semibold !rounded-full shadow-md hover:shadow-lg transition-all duration-200 flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500 dark:disabled:hover:bg-blue-600">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
             </svg>
@@ -97,11 +134,13 @@
       </form>
 
       @if (writing) {
-        <div class="mt-2 text-sm text-gray-500 italic flex items-center gap-2">
+        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400 italic flex items-center gap-2">
           <span class="flex gap-1">
-            <span class="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></span>
-            <span class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.1s"></span>
-            <span class="w-2 h-2 bg-blue-500 rounded-full animate-bounce" style="animation-delay: 0.2s"></span>
+            <span class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"></span>
+            <span class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"
+                  style="animation-delay: 0.1s"></span>
+            <span class="w-2 h-2 bg-blue-500 dark:bg-blue-400 rounded-full animate-bounce"
+                  style="animation-delay: 0.2s"></span>
           </span>
           {{ writing }}
         </div>
