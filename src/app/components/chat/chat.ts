@@ -21,9 +21,11 @@ export class Chat implements OnInit {
   message: Message = new Message();
   writing!: string;
   clientId!: string;
+  darkMode: boolean = false; //Variable para el modo oscuro
 
   constructor() {
     this.clientId = 'id-' + new Date().getTime() + '-' + Math.random().toString(36).substring(2);
+    this.initializeDarkMode();
   }
 
   ngOnInit(): void {
@@ -90,7 +92,17 @@ export class Chat implements OnInit {
   }
 
   disconnect(): void {
-    this.client.deactivate();
+    //Enviar mensaje de salida antes de desconectar
+    this.message.type = 'LEAVE_USER';
+    this.client.publish({
+      destination: '/app/message',
+      body: JSON.stringify(this.message)
+    });
+
+    //Desconectar después de un breve delay para asegurar que el mensaje se envíe
+    setTimeout(() => {
+      this.client.deactivate();
+    }, 100);
   }
 
 
@@ -120,6 +132,41 @@ export class Chat implements OnInit {
       destination: '/app/writing',
       body: this.message.username
     })
+  }
+
+  // Inicializar modo oscuro con soporte para preferencias del sistema
+  private initializeDarkMode(): void {
+
+    // Verificar si hay una preferencia guardada
+    if (localStorage.getItem('theme') === 'dark') {
+      this.darkMode = true;
+      document.documentElement.classList.add('dark');
+    } else if (localStorage.getItem('theme') === 'light') {
+      this.darkMode = false;
+      document.documentElement.classList.remove('dark');
+    } else {
+      // Si no hay preferencia guardada, usar preferencia del sistema
+      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      this.darkMode = prefersDark;
+      if (prefersDark) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+  }
+
+  // Toggle modo oscuro
+  toggleDarkMode(): void {
+    this.darkMode = !this.darkMode;
+
+    if (this.darkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+
   }
 
   private scrollToBottom(): void {
